@@ -121,6 +121,16 @@
     transform: scale(1.1);
 }
 
+.project-fav-icon.favorite svg {
+    fill: red;
+    stroke: red;
+}
+
+.project-fav-icon.not-favorite svg {
+    fill: none;
+    stroke: #888;
+}
+
 .empty-project-card {
     margin-top: 30px;
     display: flex;

@@ -9,31 +9,30 @@
 <link rel="stylesheet" href="{% static 'css/skills.css' %}">
 {% endblock %}
 
-{% with page_id="profile" %}
 {% block content %}
 <div class="profile-container">
     <div class="profile-header">
         <div class="profile-info">
-            {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="Аватар" class="profile-avatar">
+            {% if user_detail.avatar %}
+                <img src="{{ user_detail.avatar.url }}" alt="Аватар" class="profile-avatar">
             {% else %}
                 <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="profile-avatar">
             {% endif %}
             <div class="profile-details">
-                <h2 class="profile-name">{{ user.name }} {{ user.surname }}</h2>
+                <h2 class="profile-name">{{ user_detail.name }} {{ user_detail.surname }}</h2>
                 <p class="profile-description">
-                    {{ user.about|default:"Описание профиля пока не добавлено." }}
+                    {{ user_detail.about|default:"Описание профиля пока не добавлено." }}
                 </p>
                 <div class="profile-contacts">
-                    {% if user.email %}
-                    <span>{% include 'includes/svg/email.html' %} {{ user.email }}</span>
+                    {% if user_detail.email %}
+                    <span>{% include 'includes/svg/email.html' %} {{ user_detail.email }}</span>
                     {% endif %}
-                    {% if user.phone %}
-                    <span>{% include 'includes/svg/phone.html' %} {{ user.phone }}</span>
+                    {% if user_detail.phone %}
+                    <span>{% include 'includes/svg/phone.html' %} {{ user_detail.phone }}</span>
                     {% endif %}
-                    {% if user.github_url %}
+                    {% if user_detail.github_url %}
                     <span>{% include 'includes/svg/github.html' %}
-                        <a href="{{ user.github_url }}" target="_blank">GitHub</a>
+                        <a href="{{ user_detail.github_url }}" target="_blank">GitHub</a>
                     </span>
                     {% endif %}
                 </div>
@@ -42,15 +41,15 @@
         <div class="profile-actions">
             <a href="#"
                class="black-button black-button-share share-button"
-               data-url="/users/{{ user.id }}">
+               data-url="/users/{{ user_detail.id }}">
                 {% include 'includes/svg/share.html' %}
             </a>
-            {% if request.user.id == user.id %}
-            <a href="/users/edit-profile" class="black-button">
+            {% if request.user.id == user_detail.id %}
+            <a href="{% url 'users:edit_profile' %}" class="black-button">
                 {% include 'includes/svg/pen.html' %}
                 Редактировать
             </a>
-            <a href="/projects/create-project" class="black-button">
+            <a href="{% url 'projects:create_project' %}" class="black-button">
                 {% include 'includes/svg/plus.html' %}
                 Добавить проект
             </a>
@@ -58,13 +57,13 @@
         </div>
     </div>
 
-    <h3>Проекты ({{ user.owned_projects.all|length }})</h3>
+    <h3>Проекты ({{ user_detail.owned_projects.all|length }})</h3>
 
     <div class="collapsed-project-grid">
-        {% for project in user.owned_projects.all %}
+        {% for project in user_detail.owned_projects.all %}
         <div class="collapsed-project-card">
             <div class="collapsed-project-card-header">
-                <h4><a href="/projects/{{ project.id }}">{{ project.name }}</a></h4>
+                <h4><a href="{% url 'projects:project_detail' project.id %}">{{ project.name }}</a></h4>
                 <span class="project-status-black">
                     {% if project.status == "open" %}
                         Открыт
@@ -105,4 +104,3 @@
     </div>
 </div>
 {% endblock %}
-{% endwith %}

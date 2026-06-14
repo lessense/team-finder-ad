@@ -12,15 +12,56 @@
     <h2>Регистрация</h2>
     <form method="post">
         {% csrf_token %}
+
         <div class="name-fields">
-            <div>{{ form.name.label_tag }} {{ form.name }}</div>
-            <div>{{ form.surname.label_tag }} {{ form.surname }}</div>
+            <div>
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <div class="form-errors">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+            <div>
+                {{ form.surname.label_tag }}
+                {{ form.surname }}
+                {% if form.surname.errors %}
+                    <div class="form-errors">{{ form.surname.errors }}</div>
+                {% endif %}
+            </div>
         </div>
-        {{ form.email.label_tag }} {{ form.email }}
-        {{ form.password.label_tag }} {{ form.password }}
-        {% for error in form.errors.values %}
-        <p style="color: red;">{{error}}</p>
-        {% endfor %}
+
+        <div>
+            {{ form.email.label_tag }}
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="form-errors">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.password.label_tag }}
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="form-errors">{{ form.password.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            {{ form.password_confirm.label_tag }}
+            {{ form.password_confirm }}
+            {% if form.password_confirm.errors %}
+                <div class="form-errors">{{ form.password_confirm.errors }}</div>
+            {% endif %}
+        </div>
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <button type="submit">Зарегистрироваться</button>
     </form>
     <p class="auth-link">Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>

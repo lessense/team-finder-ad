@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Тестовая страница</h1>
+<h2>Всего проектов: {{ projects|length }}</h2>
+{% for project in projects %}
+    <div style="border:1px solid black; margin:10px; padding:10px;">
+        <h3>{{ project.name }}</h3>
+        <p>Статус: {{ project.status }}</p>
+        <p>Описание: {{ project.description }}</p>
+        <p>Автор: {{ project.owner.name }} {{ project.owner.surname }}</p>
+    </div>
+{% empty %}
+    <p>Нет проектов</p>
+{% endfor %}
+{% endblock %}
