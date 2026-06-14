@@ -27,7 +27,9 @@ def raw_user_view(request, pk):
 # Формы прямо здесь, чтобы избежать проблем с импортами
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
-    password_confirm = forms.CharField(widget=forms.PasswordInput, label="Подтверждение пароля")
+    password_confirm = forms.CharField(
+        widget=forms.PasswordInput, label="Подтверждение пароля"
+    )
 
     class Meta:
         model = User
@@ -149,7 +151,9 @@ def participants_list_view(request):
             users = User.objects.filter(favorites__in=my_projects).distinct()
         elif filter_type == "my_projects_participants":
             my_projects = request.user.owned_projects.all()
-            users = User.objects.filter(participated_projects__in=my_projects).distinct()
+            users = User.objects.filter(
+                participated_projects__in=my_projects
+            ).distinct()
 
     page_obj = paginate_queryset(request, users)
     return render(

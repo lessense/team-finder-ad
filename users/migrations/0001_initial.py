@@ -16,9 +16,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="User",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("password", models.CharField(max_length=128, verbose_name="password")),
-                ("last_login", models.DateTimeField(blank=True, null=True, verbose_name="last login")),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
                 (
                     "is_superuser",
                     models.BooleanField(
@@ -27,13 +40,38 @@ class Migration(migrations.Migration):
                         verbose_name="superuser status",
                     ),
                 ),
-                ("email", models.EmailField(max_length=254, unique=True, verbose_name="Email")),
+                (
+                    "email",
+                    models.EmailField(
+                        max_length=254, unique=True, verbose_name="Email"
+                    ),
+                ),
                 ("name", models.CharField(max_length=124, verbose_name="Имя")),
                 ("surname", models.CharField(max_length=124, verbose_name="Фамилия")),
-                ("avatar", models.ImageField(blank=True, null=True, upload_to="avatars/", verbose_name="Аватар")),
-                ("phone", models.CharField(blank=True, max_length=12, null=True, unique=True, verbose_name="Телефон")),
+                (
+                    "avatar",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="avatars/",
+                        verbose_name="Аватар",
+                    ),
+                ),
+                (
+                    "phone",
+                    models.CharField(
+                        blank=True,
+                        max_length=12,
+                        null=True,
+                        unique=True,
+                        verbose_name="Телефон",
+                    ),
+                ),
                 ("github_url", models.URLField(blank=True, verbose_name="GitHub")),
-                ("about", models.TextField(blank=True, max_length=256, verbose_name="О себе")),
+                (
+                    "about",
+                    models.TextField(blank=True, max_length=256, verbose_name="О себе"),
+                ),
                 ("is_active", models.BooleanField(default=True)),
                 ("is_staff", models.BooleanField(default=False)),
                 ("date_joined", models.DateTimeField(auto_now_add=True)),
@@ -49,7 +87,10 @@ class Migration(migrations.Migration):
                 (
                     "groups",
                     models.ManyToManyField(
-                        blank=True, related_name="custom_user_set", related_query_name="custom_user", to="auth.group"
+                        blank=True,
+                        related_name="custom_user_set",
+                        related_query_name="custom_user",
+                        to="auth.group",
                     ),
                 ),
                 (

@@ -13,10 +13,23 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Project",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("name", models.CharField(max_length=200, verbose_name="Название")),
                 ("description", models.TextField(blank=True, verbose_name="Описание")),
-                ("created_at", models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
                 ("github_url", models.URLField(blank=True, verbose_name="GitHub")),
                 (
                     "status",

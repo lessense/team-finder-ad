@@ -8,9 +8,12 @@ User = get_user_model()
 
 
 class RegistrationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}), label="Пароль")
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"class": "form-control"}), label="Пароль"
+    )
     password_confirm = forms.CharField(
-        widget=forms.PasswordInput(attrs={"class": "form-control"}), label="Подтверждение пароля"
+        widget=forms.PasswordInput(attrs={"class": "form-control"}),
+        label="Подтверждение пароля",
     )
 
     class Meta:
@@ -38,8 +41,12 @@ class RegistrationForm(forms.ModelForm):
 
 
 class LoginForm(forms.Form):
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control"}), label="Email")
-    password = forms.CharField(widget=forms.PasswordInput(attrs={"class": "form-control"}), label="Пароль")
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={"class": "form-control"}), label="Email"
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"class": "form-control"}), label="Пароль"
+    )
 
 
 class ProfileEditForm(forms.ModelForm):

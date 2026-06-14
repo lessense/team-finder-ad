@@ -31,7 +31,9 @@ def create_project_view(request):
             return redirect("projects:project_detail", pk=project.pk)
     else:
         form = ProjectForm()
-    return render(request, "projects/create-project.html", {"form": form, "is_edit": False})
+    return render(
+        request, "projects/create-project.html", {"form": form, "is_edit": False}
+    )
 
 
 @login_required
@@ -44,7 +46,9 @@ def edit_project_view(request, pk):
             return redirect("projects:project_detail", pk=project.pk)
     else:
         form = ProjectForm(instance=project)
-    return render(request, "projects/create-project.html", {"form": form, "is_edit": True})
+    return render(
+        request, "projects/create-project.html", {"form": form, "is_edit": True}
+    )
 
 
 @login_required

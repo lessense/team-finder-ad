@@ -1,11 +1,20 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 from django.db import models
 from django.core.files.base import ContentFile
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import random
 
-from core.constants import MAX_USER_NAME_LENGTH, MAX_USER_SURNAME_LENGTH, MAX_PHONE_LENGTH, MAX_USER_ABOUT_LENGTH
+from core.constants import (
+    MAX_USER_NAME_LENGTH,
+    MAX_USER_SURNAME_LENGTH,
+    MAX_PHONE_LENGTH,
+    MAX_USER_ABOUT_LENGTH,
+)
 
 
 class UserManager(BaseUserManager):
@@ -28,11 +37,23 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name="Email")
     name = models.CharField(max_length=MAX_USER_NAME_LENGTH, verbose_name="Имя")
-    surname = models.CharField(max_length=MAX_USER_SURNAME_LENGTH, verbose_name="Фамилия")
-    avatar = models.ImageField(upload_to="avatars/", blank=True, null=True, verbose_name="Аватар")
-    phone = models.CharField(max_length=MAX_PHONE_LENGTH, unique=True, blank=True, null=True, verbose_name="Телефон")
+    surname = models.CharField(
+        max_length=MAX_USER_SURNAME_LENGTH, verbose_name="Фамилия"
+    )
+    avatar = models.ImageField(
+        upload_to="avatars/", blank=True, null=True, verbose_name="Аватар"
+    )
+    phone = models.CharField(
+        max_length=MAX_PHONE_LENGTH,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name="Телефон",
+    )
     github_url = models.URLField(blank=True, verbose_name="GitHub")
-    about = models.TextField(max_length=MAX_USER_ABOUT_LENGTH, blank=True, verbose_name="О себе")
+    about = models.TextField(
+        max_length=MAX_USER_ABOUT_LENGTH, blank=True, verbose_name="О себе"
+    )
 
     # Django auth поля
     is_active = models.BooleanField(default=True)
@@ -40,7 +61,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
 
     groups = models.ManyToManyField(
-        "auth.Group", blank=True, related_name="custom_user_set", related_query_name="custom_user"  # уникальное имя
+        "auth.Group",
+        blank=True,
+        related_name="custom_user_set",
+        related_query_name="custom_user",  # уникальное имя
     )
     user_permissions = models.ManyToManyField(
         "auth.Permission",
@@ -51,7 +75,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # ВАРИАНТ 1: избранные проекты
     favorites = models.ManyToManyField(
-        "projects.Project", blank=True, related_name="interested_users", verbose_name="Избранные проекты"
+        "projects.Project",
+        blank=True,
+        related_name="interested_users",
+        verbose_name="Избранные проекты",
     )
 
     objects = UserManager()
@@ -74,7 +101,14 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def generate_avatar(self):
         # Генерирует аватар с первой буквой имени
-        colors = [(73, 109, 137), (76, 114, 92), (156, 110, 86), (114, 86, 128), (179, 102, 79), (82, 119, 112)]
+        colors = [
+            (73, 109, 137),
+            (76, 114, 92),
+            (156, 110, 86),
+            (114, 86, 128),
+            (179, 102, 79),
+            (82, 119, 112),
+        ]
         bg_color = random.choice(colors)
 
         img = Image.new("RGB", (200, 200), bg_color)
