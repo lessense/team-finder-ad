@@ -1,64 +1,12 @@
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import PasswordChangeForm
-from django import forms
+from django.shortcuts import get_object_or_404, redirect, render
 
+from core.constants import PAGE_SIZE
 from core.services import paginate_queryset
+from users.forms import LoginForm, ProfileEditForm, RegistrationForm
 from users.models import User
-
-from django.http import HttpResponse
-
-
-def raw_user_view(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    return HttpResponse(f"""
-    <h1>Проверка пользователя</h1>
-    <p>ID: {user.id}</p>
-    <p>Email: {user.email}</p>
-    <p>Имя: {user.name}</p>
-    <p>Фамилия: {user.surname}</p>
-    <p>Суперпользователь: {user.is_superuser}</p>
-    <hr>
-    <a href="/users/{user.id}/">Обычная страница профиля</a>
-    """)
-
-
-# Формы прямо здесь, чтобы избежать проблем с импортами
-class RegistrationForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
-    password_confirm = forms.CharField(
-        widget=forms.PasswordInput, label="Подтверждение пароля"
-    )
-
-    class Meta:
-        model = User
-        fields = ["name", "surname", "email"]
-
-    def clean_email(self):
-        email = self.cleaned_data.get("email")
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError("Пользователь с таким email уже существует")
-        return email
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password = cleaned_data.get("password")
-        password_confirm = cleaned_data.get("password_confirm")
-        if password and password_confirm and password != password_confirm:
-            raise forms.ValidationError("Пароли не совпадают")
-        return cleaned_data
-
-
-class LoginForm(forms.Form):
-    email = forms.EmailField(label="Email")
-    password = forms.CharField(widget=forms.PasswordInput, label="Пароль")
-
-
-class ProfileEditForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ["name", "surname", "avatar", "about", "phone", "github_url"]
 
 
 def register_view(request):
@@ -85,8 +33,7 @@ def login_view(request):
             if user:
                 login(request, user)
                 return redirect("projects:project_list")
-            else:
-                form.add_error(None, "Неверный email или пароль")
+            form.add_error(None, "Неверный email или пароль")
     else:
         form = LoginForm()
     return render(request, "users/login.html", {"form": form})
@@ -98,9 +45,7 @@ def logout_view(request):
     return redirect("projects:project_list")
 
 
-# ГЛАВНОЕ: ЭТА ФУНКЦИЯ ДОЛЖНА БЫТЬ ТОЧНО ТАКОЙ
 def user_detail_view(request, pk):
-    """Показывает профиль пользователя - ЛЮБОГО, даже если это не текущий пользователь"""
     user_detail = get_object_or_404(User, pk=pk)
     return render(request, "users/user-details.html", {"user_detail": user_detail})
 
@@ -131,9 +76,8 @@ def change_password_view(request):
 
 
 def participants_list_view(request):
-    users = User.objects.all().order_by("-date_joined")
+    users = User.objects.select_related().all().order_by("-date_joined")
 
-    # Фильтрация для варианта 1
     filter_type = request.GET.get("filter")
     active_filter = None
 
@@ -155,7 +99,7 @@ def participants_list_view(request):
                 participated_projects__in=my_projects
             ).distinct()
 
-    page_obj = paginate_queryset(request, users)
+    page_obj = paginate_queryset(request, users, PAGE_SIZE)
     return render(
         request,
         "users/participants.html",

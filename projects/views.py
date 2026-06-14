@@ -1,78 +1,91 @@
+import http
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 
-from core.constants import STATUS_OPEN, STATUS_CLOSED
+from core.constants import STATUS_CLOSED, STATUS_OPEN
 from core.services import paginate_queryset
 from projects.forms import ProjectForm
 from projects.models import Project
+from projects.services import get_projects_with_related
 
 
 def project_list_view(request):
-    projects = Project.objects.select_related("owner").all().order_by("-created_at")
+    projects = get_projects_with_related().order_by("-created_at")
     page_obj = paginate_queryset(request, projects)
     return render(request, "projects/project_list.html", {"projects": page_obj})
 
 
 def project_detail_view(request, pk):
-    project = get_object_or_404(Project.objects.select_related("owner"), pk=pk)
+    project = get_object_or_404(get_projects_with_related(), pk=pk)
     return render(request, "projects/project-details.html", {"project": project})
 
 
 @login_required
 def create_project_view(request):
-    if request.method == "POST":
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            project = form.save(commit=False)
-            project.owner = request.user
-            project.save()
-            project.participants.add(request.user)
-            return redirect("projects:project_detail", pk=project.pk)
-    else:
-        form = ProjectForm()
+    form = ProjectForm(request.POST or None)
+    if form.is_valid():
+        project = form.save(commit=False)
+        project.owner = request.user
+        project.save()
+        project.participants.add(request.user)
+        return redirect("projects:project_detail", pk=project.pk)
     return render(
-        request, "projects/create-project.html", {"form": form, "is_edit": False}
+        request,
+        "projects/create-project.html",
+        {"form": form, "is_edit": False},
     )
 
 
 @login_required
 def edit_project_view(request, pk):
     project = get_object_or_404(Project, pk=pk, owner=request.user)
-    if request.method == "POST":
-        form = ProjectForm(request.POST, instance=project)
-        if form.is_valid():
-            form.save()
-            return redirect("projects:project_detail", pk=project.pk)
-    else:
-        form = ProjectForm(instance=project)
+    form = ProjectForm(request.POST or None, instance=project)
+    if form.is_valid():
+        form.save()
+        return redirect("projects:project_detail", pk=project.pk)
     return render(
-        request, "projects/create-project.html", {"form": form, "is_edit": True}
+        request,
+        "projects/create-project.html",
+        {"form": form, "is_edit": True},
     )
 
 
 @login_required
 def complete_project_view(request, pk):
-    project = get_object_or_404(Project, pk=pk, owner=request.user)
+    project = Project.objects.filter(pk=pk, owner=request.user).first()
+    if not project:
+        return JsonResponse(
+            {"status": "error", "message": "Проект не найден"},
+            status=http.HTTPStatus.NOT_FOUND,
+        )
+
     if project.status == STATUS_OPEN:
         project.status = STATUS_CLOSED
         project.save()
         return JsonResponse({"status": "ok", "project_status": STATUS_CLOSED})
-    return JsonResponse({"status": "error", "message": "Проект уже закрыт"}, status=400)
+
+    return JsonResponse(
+        {"status": "error", "message": "Проект уже закрыт"},
+        status=http.HTTPStatus.BAD_REQUEST,
+    )
 
 
 @login_required
 def toggle_participate_view(request, pk):
-    project = get_object_or_404(Project, pk=pk)
-    if request.user in project.participants.all():
+    project = Project.objects.filter(pk=pk).first()
+    if not project:
+        return JsonResponse(
+            {"status": "error", "message": "Проект не найден"},
+            status=http.HTTPStatus.NOT_FOUND,
+        )
+
+    is_participant = project.participants.filter(pk=request.user.pk).exists()
+
+    if is_participant:
         project.participants.remove(request.user)
-        joined = False
     else:
         project.participants.add(request.user)
-        joined = True
-    return JsonResponse({"status": "ok", "joined": joined})
 
-
-def test_view(request):
-    projects = Project.objects.all()
-    return render(request, "projects/test.html", {"projects": projects})
+    return JsonResponse({"status": "ok", "joined": not is_participant})

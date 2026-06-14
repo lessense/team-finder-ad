@@ -1,22 +1,32 @@
+import http
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+
 from projects.models import Project
 
 
 @login_required
 def toggle_favorite(request, pk):
     """Добавить/удалить проект из избранного"""
-    project = get_object_or_404(Project, pk=pk)
+    # Проверяем существование проекта через filter().first()
+    project = Project.objects.filter(pk=pk).first()
+    if not project:
+        return JsonResponse(
+            {"status": "error", "message": "Проект не найден"},
+            status=http.HTTPStatus.NOT_FOUND,
+        )
 
-    if request.user.favorites.filter(pk=pk).exists():
+    # Проверяем, есть ли проект в избранном
+    is_favorited = request.user.favorites.filter(pk=pk).exists()
+
+    if is_favorited:
         request.user.favorites.remove(project)
-        favorited = False
     else:
         request.user.favorites.add(project)
-        favorited = True
 
-    return JsonResponse({"status": "ok", "favorited": favorited})
+    return JsonResponse({"status": "ok", "favorited": not is_favorited})
 
 
 @login_required

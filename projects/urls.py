@@ -1,4 +1,5 @@
 from django.urls import path
+
 from projects import views
 from projects import views_favorites
 
@@ -22,5 +23,4 @@ urlpatterns = [
         name="toggle_favorite",
     ),
     path("favorites/", views_favorites.favorites_list, name="favorites_list"),
-    path("test/", views.test_view, name="test"),
 ]
